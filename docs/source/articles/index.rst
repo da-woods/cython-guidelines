@@ -11,3 +11,5 @@ in a big list.
    lie
    autoconversions
    listgood
+   bundled_cimports
+   directives
