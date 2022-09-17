@@ -15,7 +15,9 @@ opinion as opposed to strict documentation.
    :maxdepth: 2
    :caption: Contents:
    
+   themes/index
    articles/index
+   
 
 
 
