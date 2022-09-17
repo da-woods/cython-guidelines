@@ -9,3 +9,5 @@ in a big list.
 
    not_designed_for
    lie
+   autoconversions
+   listgood

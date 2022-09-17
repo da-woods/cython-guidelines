@@ -1,6 +1,8 @@
 Themes
 ======
 
+.. _separate-cy-interface:
+
 Have a separate "Python" and "Cython" interface
 -----------------------------------------------
 
