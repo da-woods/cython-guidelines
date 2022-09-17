@@ -18,4 +18,7 @@ If you're using C++ classes it's also worth thinking "do I need to expose these 
 Your life will probably be simpler if you don't have to write ``cdef class`` wrappers for
 them and potentially work out the complex ownership issues involved.
 
+Memoryviews
+-----------
 
+* :ref:`dont-return-memoryviews`

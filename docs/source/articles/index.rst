@@ -13,3 +13,4 @@ in a big list.
    listgood
    bundled_cimports
    directives
+   memview_interface
