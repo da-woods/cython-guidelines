@@ -17,6 +17,7 @@ opinion as opposed to strict documentation.
    
    themes/index
    articles/index
+   troubleshooting/index
    
 
 
