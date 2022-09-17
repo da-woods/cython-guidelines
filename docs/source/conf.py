@@ -7,7 +7,7 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'Cython Guidelines'
-copyright = '2022, David Woods'
+copyright = '2022, David Woods; licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC-By-SA-4.0</a>'
 author = 'David Woods'
 
 # -- General configuration ---------------------------------------------------
