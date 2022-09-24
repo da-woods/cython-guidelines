@@ -14,3 +14,4 @@ in a big list.
    bundled_cimports
    directives
    memview_interface
+   plan_your_py_interface

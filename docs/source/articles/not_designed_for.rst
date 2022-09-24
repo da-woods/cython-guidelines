@@ -66,6 +66,13 @@ to expose them to Python then I personally think
 `PyBind11 <https://github.com/pybind/>`_ is a better tool - it works 
 directly in C++ so it has much better visibility of C++ types and 
 C++ ownership semantics and so you'll probably find it more natural for this.
+Essentially anything under `Creating Cython wrapper class
+<https://cython.readthedocs.io/en/latest/src/userguide/wrapping_CPlusPlus.html#create-cython-wrapper-class>`_
+in the official documentation can be a bad idea. It's worth thinking hard
+about what parts of this you want to expose, what parts are best hidden in
+Cython code, what parts you don't use. And also start from the other end:
+what does a nice Python interface look like (and this may not be "the C++
+interface, but wrapped").
 
 Where Cython comes into its own is if you want to use C++ classes from within 
 Cython code - deeply intermingling C++ logic and Python logic. I don't know of 
