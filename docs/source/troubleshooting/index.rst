@@ -1,6 +1,37 @@
 Troubleshooting
 ===============
 
+Where the language is "messy"
+-----------------------------
+
+By necessity, Cython is a slightly odd mix of the resolved-at-run-time, dynamic
+behaviour of Python, and the statically-defined, resolved at compile-time behaviour
+of C. These don't always combine perfectly, and the places that often cause confusion
+are often the places they meet.
+
+As example, for a ``cdef class``, Cython is able to access ``cdef`` attributes
+directly (as a simple C lookup). However, if the direct attribute lookup "misses"
+then Cython doesn't produce an error message - instead it assumes that it will
+be able to resolve that attribute through the standard Python "string lookup from
+a dictionary" mechanism at runtime. The two mechanisms are quite different in
+how they work and what they can return (the Python mechanism can only return
+Python objects, while the the direct lookup can return largely any C type).
+
+Much the same can occur when a name is imported rather "cimported" - Cython does
+not know where the name comes from so treats it as a regular Python object.
+
+This silent-fallback to Python behaviour is often a source of confusion. In the
+best case it gives the same overall behaviour but slightly slower (for example
+calling a ``cpdef`` function through the Python mechanism rather than directly
+to C). Often it just causes an ``AttributeError`` exception at runtime. Very
+occasionally it might do something quite different - invoke a Python method
+with the same name as a ``cdef`` method, or cause a convert from a C++ container
+to a Python one.
+
+This kind of dual-layered behaviour probably isn't how one would design a
+language from scratch, but is needed for Cython's goals for being Python compatible
+and allowing C types to be used fairly seamlessly.
+
 ``AttributeErrors``
 -------------------
 
