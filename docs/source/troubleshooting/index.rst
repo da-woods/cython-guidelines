@@ -1,6 +1,12 @@
 Troubleshooting
 ===============
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+   
+   embedding
+
 Where the language is "messy"
 -----------------------------
 

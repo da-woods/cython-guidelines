@@ -29,6 +29,8 @@ decide to use it for this it's worth knowing what its weaknesses are:
   contain the actual lines of code, which are only visible when the source file 
   is present.
 
+.. _dont-create-exes:
+  
 Creating Executables
 --------------------
 
