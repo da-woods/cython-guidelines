@@ -16,3 +16,4 @@ in a big list.
    memview_interface
    plan_your_py_interface
    cdef_cpdef_difference
+   gil_release
