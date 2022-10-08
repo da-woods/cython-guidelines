@@ -15,3 +15,4 @@ in a big list.
    directives
    memview_interface
    plan_your_py_interface
+   cdef_cpdef_difference
