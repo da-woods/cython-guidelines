@@ -1,0 +1,4 @@
+main
+embed_example.c
+embed_example.h
+*.o

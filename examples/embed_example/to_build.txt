@@ -1,0 +1,4 @@
+cython embed_example.pyx
+gcc -c embed_example.c `python3-config --cflags`
+gcc -c main.c `python3-config --cflags`
+gcc embed_example.o main.o -o main `python3-config --libs --ldflags --embed`

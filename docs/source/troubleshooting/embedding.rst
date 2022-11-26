@@ -57,10 +57,16 @@ Therefore, if you decide to skip the initialization and just go straight to
 running your public functions you will likely experience crashes (even for
 something as simple as using a string).
 
+InitTab
+^^^^^^^
+
 The preferred way to do imports in modern Python (>=3.5) is to use the
 `inittab mechanism <https://docs.python.org/3/c-api/import.html#c._inittab>`_
 which is detailed in `the Cython documentation <http://docs.cython.org/en/latest/src/userguide/external_C_code.html#public-declarations>`_. This should be done
 before ``Py_Initialize()``.
+
+Forcing single-phase
+^^^^^^^^^^^^^^^^^^^^
 
 If for some reason you aren't able to add your module to the inittab before
 Python is initialized (a common reason is trying to import another Cython
@@ -71,10 +77,28 @@ at the command line). If you do this then you can run the module init
 function directly (``PyInit_<module_name>`` on Python 3). *This really
 isn't the preferred option*.
 
-Finally, you should be able to run the multi-phase initialization yourself
-(although I haven't tested it recently). First call your
+Working with multi-phase
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+It is possible to run the multi-phase initialization manually yourself.
+First call your
 ``PyInit_<module_name>`` function (which'll return a ``PyModuleDef`` object
 and then call ``PyModule_FromDefAndSpec`` and ``PyModule_ExecDef``.
 The module spec can be created with `importlib <https://docs.python.org/3/library/importlib.html#importlib.machinery.ModuleSpec>`_.
 
+As an example, consider this Cython module (``embed_example.pyx``):
 
+.. literalinclude:: ../../../examples/embed_example/embed_example.pyx
+
+I've printed a module global just to make absolutely sure that the
+module can't be used without being imported.
+
+The C file to import it (``main.c``):
+
+.. literalinclude:: ../../../examples/embed_example/main.c
+   :language: C
+   
+and run the following commands to build it:
+
+.. literalinclude:: ../../../examples/embed_example/to_build.txt
+   :language: bash
