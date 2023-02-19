@@ -127,3 +127,87 @@ require the GIL, and doesn't need to allocate Python objects::
             
 Take advantage of this!
         
+Understanding the underlying data structure
+-------------------------------------------
+
+Technical details follow - you may want to skip this.
+
+.. Note::
+
+  This section is mostly copied from `a Stack Overflow answer that I wrote <https://stackoverflow.com/a/37497998/4657412>`_.
+
+When you write in a function::
+
+    cdef double[:] a
+
+you end up with a `__Pyx_memviewslice` object::
+
+    typedef struct {
+      struct __pyx_memoryview_obj *memview;
+      char *data;
+      Py_ssize_t shape[8];
+      Py_ssize_t strides[8];
+      Py_ssize_t suboffsets[8];
+    } __Pyx_memviewslice;
+
+The memoryview contains a C pointer some some data which it (usually) doesn't directly own. It also contains a pointer to an underlying Python object (``struct __pyx_memoryview_obj *memview;``). If the data is owned by a Python object then ``memview`` holds a reference to that and ensures the Python object that holds the data is kept alive as long as the memoryview is around.
+
+The combination of the pointer to the raw data, and information of how to index it (``shape``, ``strides`` and ``suboffsets``) allows Cython to do indexing the using the raw data pointers and some simple C maths (which is very efficient). e.g.::
+
+    x=a[0]
+
+gives something like::
+
+    (*((double *) ( /* dim=0 */ (__pyx_v_a.data + __pyx_t_2 * __pyx_v_a.strides[0]) )));
+
+In contrast, if you work with untyped objects and write something like::
+
+    a = np.array([1,2,3]) # note no typedef
+    x = x[0]
+
+the indexing is done as::
+
+    __Pyx_GetItemInt(__pyx_v_a, 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1);
+
+which itself expands to a whole bunch of Python C-api calls (so is slow). Ultimately it calls ``a``'s ``__getitem__`` method.
+
+Comparison with the old ``np.ndarray`` syntax
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+There really isn't a huge difference.
+
+If you do something like::
+
+    cdef np.ndarray[np.int32_t, ndim=1] new_arr
+
+it works practically very like a memoryview, with access to raw pointers and the speed should be very similar.
+
+The advantage to using memoryviews is that you can use a wider range of array types with them (such as the `standard library array <https://docs.python.org/3/library/array.html>`_), so you're more flexible about the types your functions can be called with. This fits in with the general Python idea of "duck-typing" - that your code should work with any parameter that behaves the right way (rather than checking the type). 
+
+A second (small) advantage is that you don't need the numpy headers to build your module.
+
+A third (possibly larger) advantage is that memoryviews can be sliced without the GIL while ``cdef np.ndarray`` s can't (`See the Cython docs <http://docs.cython.org/src/userguide/memoryviews.html#comparison-to-the-old-buffer-support>`_)
+
+A slight disadvantage to memoryviews is that they seem to be slightly slower to set up.
+
+Memoryviews vs ``malloc`` ed pointers
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You won't get any speed advantage (but neither will you get too much speed loss). Raw pointers
+are about the most direct way to access data, but memoryviews are not a huge overhead on top
+of that.
+
+The minor advantages accessing the your data via a memoryview rather than a pointer are:
+
+1. You can write functions that can be used either from Python or internally within Cython::
+
+        cpdef do_something_useful(double[:] x):
+            # can be called from Python with any array type or from Cython
+            # with something that's already a memoryview
+            ....
+
+2. You can let Cython handle the freeing of memory for this type of array, which could simplify your life for things that have an unknown lifetime. See http://docs.cython.org/src/userguide/memoryviews.html#cython-arrays and especially ``.callback_free_data``.
+
+3. You can pass your data back to python python code (it'll get the underlying ``__pyx_memoryview_obj`` or something similar). Be very careful of memory management here (i.e. see point 2!).
+
+4. The other thing you can do is handle things like 2D arrays defined as pointer to pointer (e.g. ``double**``). See http://docs.cython.org/src/userguide/memoryviews.html#specifying-more-general-memory-layouts. I generally don't like this type of array, but if you have existing C code that already uses if then you can interface with that (and pass it back to Python so your Python code can also use it).
