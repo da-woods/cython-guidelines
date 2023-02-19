@@ -17,3 +17,4 @@ in a big list.
    plan_your_py_interface
    cdef_cpdef_difference
    gil_release
+   memoryviews_are_views_not_arrays

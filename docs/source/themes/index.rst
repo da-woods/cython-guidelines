@@ -22,3 +22,5 @@ Memoryviews
 -----------
 
 * :ref:`dont-return-memoryviews`
+
+* :ref:`memviews-are-views`
