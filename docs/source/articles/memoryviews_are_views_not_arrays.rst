@@ -112,11 +112,11 @@ As a full example::
     change_existing_data(arr1)
     print(arr1[0])  # 1
 
-Slicing is quick
-----------------
+Slicing is (fairly) quick
+-------------------------
 
-Note that slicing a memoryview to get a "subview" is very quick, doesn't
-require the GIL, and doesn't need to allocate Python objects::
+Slicing a memoryview to get a "subview" is fairly quick. It can be done
+without the GIL, and doesn't need to allocate Python objects::
 
     cdef void f(double[:] x):
         ... # do something
@@ -125,7 +125,25 @@ require the GIL, and doesn't need to allocate Python objects::
         for i in range(x2D.shape[0]):
             f(x[i, :])  # this is fast!
             
-Take advantage of this!
+It's notably quicker than creating a fresh memoryview because it only
+involves a small amount of reference counting, but doesn't involve any
+new type or size checking.
+            
+Take advantage of this for a clean interface!
+
+If you need the absolute highest speed then it might be worth avoiding
+slicing, for example by passing the full-sized memoryview and an index::
+
+    cdef void f(double[:,:] x2D, Py_ssize_t column):
+        ... # do something, using x2D[i, j] to get individual elements
+        
+    def call_f(double[:,:] x2D):
+        for i in range(x2D.shape[0]):
+            f(x, i)
+            
+For most cases I'd prefer the fairly fast clean interface version, and
+only resort to the second version if absolutely necessary after profiling.
+But it's worth knowing as an option.
         
 Understanding the underlying data structure
 -------------------------------------------
